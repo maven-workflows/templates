@@ -1,0 +1,75 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: example-springboot-maven-full
+  title: Maven Spring Boot Template
+  description: "Template incluindo estrutura para spring boot com maven + CI/CD integrado"
+spec:
+  owner: user:development/guest 
+  type: service
+
+  parameters:
+    - title: Dados Essenciais do Serviço
+      required: [appName, description] 
+      properties:
+        appName:
+          title: Nome da Aplicação/Repositório
+          type: string
+          description: "O nome da sua aplicação, que também será o nome do repositório (ex: my-app)."
+          pattern: '^[a-zA-Z0-9-_.]{1,63}$'
+          ui:autofocus: true
+        description:
+          title: Descrição do Serviço
+          type: string
+          description: "Uma breve descrição do que este serviço faz."
+        javaVersion:
+          title: Versão do Java
+          type: string
+          description: "A versão do Java usada no projeto (ex: 17)."
+          default: "17"
+
+  steps:
+    - id: generate
+      name: "Gerar Estrutura da Aplicação"
+      action: fetch:template
+      input:
+        url: ./content
+        templateFileExtension: true
+        values:
+          orgName: "maven-workflows" 
+          appName: ${{ parameters.appName }}
+          description: ${{ parameters.description }}
+          metadataName: ${{ parameters.appName | lower | replace('-', '') | replace('_', '') }}
+          artifactId: ${{ parameters.appName }}
+          javaVersion: ${{ parameters.javaVersion }}
+          owner: ${{ user.entityRef }}
+          groupId: "com.mavenworkflow"
+          javaPackage: "com.mavenworkflow.${{ parameters.appName | lower | replace('-', '') | replace('_', '') }}"
+          apiPath: "/api/v1/${{ parameters.appName }}"
+          distributionRepository: "https://maven.pkg.github.com/maven-workflows/maven-application"
+
+    - id: publish
+      name: "Publicar no GitHub"
+      action: publish:github
+      input:
+        allowedHosts: [github.com]
+        description: ${{ parameters.description }}
+        # orgName agora é um valor fixo no repoUrl
+        repoUrl: github.com?owner=maven-workflows&repo=${{ parameters.appName }} 
+        defaultBranch: main
+        repoVisibility: public
+
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repositório no GitHub
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Abrir no Catálogo
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

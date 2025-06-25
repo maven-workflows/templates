@@ -1,0 +1,20 @@
+# Guia de Uso e Instalação
+
+Este documento reúne as instruções para instalar o serviço e usar sua API.
+
+---
+
+## 1. Instalação
+
+### Pré-requisitos
+
+- Node.js 18.x ou 20.x (`nvm use 18` ou `nvm use 20 --no-node-snapshot`)  
+- Yarn 1.22.x  
+- Docker (opcional, para TechDocs)
+
+### Passos
+
+1. **Clone o repositório**  
+   ```bash
+   git clone https://github.com/backstage-project/{{ values.name }}.git
+   cd {{ values.name }}
