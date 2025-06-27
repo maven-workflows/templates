@@ -1,0 +1,73 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: dotnet-webapi-starter
+  title: .NET Web API Starter
+  description: "Template simples para iniciar um projeto .NET Web API com o essencial: API funcional, testes e CI/CD"
+spec:
+  owner: user:development/guest 
+  type: service
+
+  parameters:
+    - title: Informações do Projeto
+      required: [appName, description] 
+      properties:
+        appName:
+          title: Nome da Aplicação/Repositório
+          type: string
+          description: "O nome da sua aplicação, que também será o nome do repositório (ex: my-api)."
+          pattern: '^[a-zA-Z0-9-_.]{1,63}$'
+          ui:autofocus: true
+        description:
+          title: Descrição do Serviço
+          type: string
+          description: "Uma breve descrição do que este serviço faz."
+        dotnetVersion:
+          title: Versão do .NET
+          type: string
+          description: "A versão do .NET usada no projeto."
+          default: "8.0"
+          enum:
+            - "6.0"
+            - "7.0"
+            - "8.0"
+            - "9.0"
+
+  steps:
+    - id: generate
+      name: "Gerar Estrutura da Aplicação"
+      action: fetch:template
+      input:
+        url: ./content
+        templateFileExtension: true
+        values:
+          orgName: "dotnet-workflows" 
+          appName: ${{ parameters.appName }}
+          description: ${{ parameters.description }}
+          dotnetVersion: ${{ parameters.dotnetVersion }}
+          owner: ${{ user.entityRef }}
+
+    - id: publish
+      name: "Publicar no GitHub"
+      action: publish:github
+      input:
+        allowedHosts: [github.com]
+        description: ${{ parameters.description }}
+        repoUrl: github.com?owner=dotnet-workflows&repo=${{ parameters.appName }} 
+        defaultBranch: main
+        repoVisibility: public
+
+    - id: register
+      name: Register in Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: Repositório no GitHub
+        url: ${{ steps.publish.output.remoteUrl }}
+      - title: Abrir no Catálogo
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

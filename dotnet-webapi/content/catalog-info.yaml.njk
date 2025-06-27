@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ values.appName }}
+  description: ${{ values.description }}
+  tags:
+    - dotnet
+    - webapi
+    - backend
+    - csharp
+  annotations:
+    github.com/project-slug: ${{ values.orgName }}/${{ values.appName }}
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  lifecycle: experimental
+  owner: ${{ parameters.owner if parameters.owner else 'user:guest' }}

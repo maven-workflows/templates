@@ -1,0 +1,42 @@
+# ${{ values.appName }}
+
+${{ values.description }}
+
+## 🚀 Como Executar
+
+```bash
+# Restaurar dependências
+dotnet restore
+
+# Executar a aplicação
+dotnet run --project WebApi
+
+# Executar testes
+dotnet test
+```
+
+A aplicação estará disponível em `https://localhost:5001/swagger`
+
+## 📁 Estrutura
+
+```
+WebApi/
+├── WebApi/                               # Projeto principal
+│   ├── Controllers/
+│   │   └── WeatherController.cs         # Controller de exemplo
+│   ├── Program.cs                       # Configuração da aplicação
+│   └── appsettings.json                 # Configurações
+├── WebApi.Tests/                        # Testes
+│   └── Controllers/
+│       └── WeatherControllerTests.cs    # Teste do controller
+└── .github/workflows/                   # CI/CD
+    └── ci-cd.yml                        # Build e test automatizados
+```
+
+## 📊 API
+
+- `GET /api/weather` - Exemplo de endpoint que retorna dados de clima
+
+---
+
+**.NET ${{ values.dotnetVersion }} • ASP.NET Core • Swagger**
